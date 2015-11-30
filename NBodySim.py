@@ -10,13 +10,13 @@ import matplotlib.pyplot
 def gravity(m1, m2, r):
     return scipy.constants.G * m1 * m2 / (r ** 2)
 
-positions = numpy.array([[-50, 0], [50, 0]], dtype = numpy.float64)
+positions = numpy.array([[-50, -50], [-50, 50], [50, 50], [50, -50]], dtype = numpy.float64)
 
-velocities = numpy.array([[1, 1], [-1, -1]], dtype = numpy.float64)
+velocities = numpy.array([[0, 5], [5, 0], [0, -5], [-5, 0]], dtype = numpy.float64)
 
-accelerations = numpy.array([[0, 0], [0, 0]], dtype = numpy.float64)
+#accelerations = numpy.array([[0, 0], [0, 0], [0, 0], [0, 0]], dtype = numpy.float64)
 
-masses = numpy.array([1000000000000, 1000000000000], dtype = numpy.float64)
+masses = numpy.array([100000000000, 100000000000, 100000000000, 100000000000], dtype = numpy.float64)
 
 d_t = 1
 
@@ -26,22 +26,20 @@ ax.set_ylim(-1000, 1000)
 
 points, = ax.plot(positions[:, 0], positions[:, 1], marker='o', linestyle='None')
 
-for i in range(0, 1000):
+for i in range(500):
     
-    accelerations = numpy.array([[0, 0], [0, 0]], dtype = numpy.float64)
+    accelerations = numpy.array([[0, 0], [0, 0], [0, 0], [0, 0]], dtype = numpy.float64)
 
     for pair in itertools.combinations(range(len(masses)), 2):
         particle_a, particle_b = pair
-        d_a = positions[particle_b] - positions[particle_a]
-        d_b = positions[particle_a] - positions[particle_b]
-        r = numpy.linalg.norm(d_a)
+        d = positions[particle_b] - positions[particle_a]
+
+        r = numpy.linalg.norm(d)
     
         f = gravity(masses[particle_a], masses[particle_b], r)
 
-        accelerations[particle_a] += f / masses[particle_a] * d_a
-        accelerations[particle_b] += f / masses[particle_b] * d_b
-
-    print accelerations
+        accelerations[particle_a] += f / masses[particle_a] * d
+        accelerations[particle_b] -= f / masses[particle_b] * d
 
     velocities += accelerations * d_t
 
@@ -49,6 +47,4 @@ for i in range(0, 1000):
 
     points.set_data(positions[:, 0], positions[:, 1])
     
-    matplotlib.pyplot.pause(0.1)
-
-matplotlib.pyplot.show()
+    matplotlib.pyplot.savefig("%03d.png" % i)
